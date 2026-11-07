@@ -3,6 +3,55 @@
   "name": "Oi",
   "createdAt": "2026-11-07T02:04:27.054Z",
   "filename": "075d9b98-5ca6-4c5e-a1da-6474198805de.json",
-  "geminiStarted": false,
-  "messages": []
+  "geminiStarted": true,
+  "messages": [
+    {
+      "id": "ce6d9448-3c38-4cc0-9253-5998cc363ba1",
+      "role": "user",
+      "content": "Oi",
+      "status": "pending",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-11-07T02:05:18.155Z",
+      "sender": "ios",
+      "is_cancelled": false
+    },
+    {
+      "id": "9faee6a0-c9b2-4e97-a307-2ad256ecbb6f",
+      "role": "agent",
+      "content": "Oi! Como posso ajudar você hoje?",
+      "status": "completed",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": "ce6d9448-3c38-4cc0-9253-5998cc363ba1",
+      "created_at": "2026-11-07T02:05:25.675Z",
+      "sender": "macOS",
+      "is_cancelled": false
+    },
+    {
+      "id": "9f2de6fd-2a6b-4fee-bd46-fe76111f4f33",
+      "role": "user",
+      "content": "oi",
+      "status": "pending",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-11-07T02:05:25.679Z",
+      "sender": "ios",
+      "is_cancelled": false
+    },
+    {
+      "id": "ea7bede1-804e-456a-a584-904893d9df46",
+      "role": "agent",
+      "content": "Olá! Tudo bem? Em que posso ajudar no seu projeto hoje?",
+      "status": "completed",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": "9f2de6fd-2a6b-4fee-bd46-fe76111f4f33",
+      "created_at": "2026-11-07T02:05:31.146Z",
+      "sender": "macOS",
+      "is_cancelled": false
+    }
+  ]
 }
