@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TikTok Live Chat - Réplica iPhone (iOS) para Streamlabs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- SF Pro / Inter font fallback -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090a0f;
+      --card-bg: rgba(22, 24, 35, 0.85);
+      --border-color: rgba(255, 255, 255, 0.12);
+      --tiktok-pink: #FE2C55;
+      --tiktok-cyan: #25F4EE;
+      --tiktok-yellow: #FFD600;
+      --ios-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--ios-font);
+      background-color: var(--bg-dark);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* ===== Top Header Bar ===== */
+    header {
+      background: rgba(15, 17, 23, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--tiktok-pink), #c9183b);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .pill-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .pill-btn.active {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.3);
+    }
+
+    .pill-btn-pink {
+      background: var(--tiktok-pink);
+      border-color: var(--tiktok-pink);
+      color: white;
+    }
+    .pill-btn-pink:hover {
+      background: #e02349;
+    }
+
+    /* ===== Main Workspace Container ===== */
+    .workspace {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 40px;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== iPhone 16 Pro Frame ===== */
+    .phone-wrapper {
+      position: relative;
+      width: 380px;
+      height: 780px;
+      background: #000000;
+      border-radius: 54px;
+      box-shadow: 
+        0 0 0 4px #2b2b2e,
+        0 0 0 8px #18181b,
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 80px rgba(254, 44, 85, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    /* Fullscreen / Transparent Overlay Mode for Streamlabs */
+    .phone-wrapper.mode-overlay {
+      width: 420px;
+      height: 700px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      background: transparent;
+      border: 2px dashed rgba(254, 44, 85, 0.4);
+    }
+    .phone-wrapper.mode-overlay .iphone-bezel,
+    .phone-wrapper.mode-overlay .dynamic-island,
+    .phone-wrapper.mode-overlay .ios-status-bar,
+    .phone-wrapper.mode-overlay .home-bar {
+      display: none !important;
+    }
+
+    /* iOS Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 116px;
+      height: 32px;
+      background: #000000;
+      border-radius: 20px;
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .island-camera {
+      width: 11px;
+      height: 11px;
+      background: #0a0e1c;
+      border-radius: 50%;
+      border: 1px solid #1c2333;
+      box-shadow: inset 0 0 2px #00b4d8;
+    }
+
+    .island-sensor {
+      width: 8px;
+      height: 8px;
+      background: #080a10;
+      border-radius: 50%;
+    }
+
+    /* iOS Status Bar */
+    .ios-status-bar {
+      height: 48px;
+      padding: 12px 26px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 600;
+      z-index: 80;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Live Stream Background Simulation */
+    .screen-content {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stream-video-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      filter: brightness(0.9);
+    }
+
+    /* Stream Ambient Canvas Background */
+    #streamCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .video-webcam {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+      z-index: 1;
+      display: none;
+    }
+
+    /* Live UI Layer */
+    .live-ui-overlay {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    /* Streamer Header in Live */
+    .streamer-header {
+      pointer-events: auto;
+      margin-top: 50px;
+      padding: 0 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .streamer-pill {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 4px 10px 4px 4px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 0.5px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .streamer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FE2C55, #FFD600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      border: 1.5px solid #FE2C55;
+    }
+
+    .streamer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .streamer-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .streamer-likes {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .btn-follow-streamer {
+      background: var(--tiktok-pink);
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .stream-stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .viewers-pill {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border: 0.5px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .close-live-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* Screen Tap Area for Floating Hearts */
+    .tap-target-area {
+      position: absolute;
+      top: 100px;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      z-index: 5;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    /* ===== TIKTOK LIVE CHAT CONTAINER (THE EXACT IPHONE REPLICA) ===== */
+    .tiktok-chat-container {
+      pointer-events: auto;
+      width: calc(100% - 64px);
+      max-width: 320px;
+      margin-left: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 20;
+    }
+
+    /* Pinned message banner */
+    .pinned-banner {
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-left: 3px solid #FFD600;
+      border-radius: 12px;
+      padding: 6px 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: fadeIn 0.3s ease;
+    }
+    .pinned-icon {
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .pinned-title {
+      font-weight: 700;
+      color: #FFD600;
+      margin-right: 4px;
+    }
+
+    /* Chat Scroll Area with iOS Fade Mask at Top */
+    .chat-scroll-viewport {
+      height: 240px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding-right: 6px;
+      scroll-behavior: smooth;
+
+      /* A máscara de degradê clássica do TikTok iOS: */
+      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+      mask-image: linear-gradient(to top, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+    }
+
+    .chat-scroll-viewport::-webkit-scrollbar {
+      width: 3px;
+    }
+    .chat-scroll-viewport::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    /* Mensagem do TikTok (A cápsula fosca idêntica ao iPhone) */
+    .tiktok-msg {
+      align-self: flex-start;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.38); /* Exato tom translúcido de fundo do TikTok iOS */
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 15px;
+      padding: 4px 10px 5px 8px;
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 13.5px;
+      line-height: 1.35;
+      word-break: break-word;
+      animation: messageSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      border: 0.5px solid rgba(255, 255, 255, 0.05);
+    }
+
+    @keyframes messageSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Avatar do Usuário */
+    .tiktok-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 1px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .avatar-fallback {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #4b5563;
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    /* Badges do TikTok */
+    .tiktok-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      height: 15px;
+      padding: 0 5px;
+      border-radius: 7.5px;
+      font-size: 9px;
+      font-weight: 800;
+      color: #fff;
+      vertical-align: middle;
+      margin-right: 4px;
+      text-transform: uppercase;
+      letter-spacing: -0.2px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      user-select: none;
+    }
+
+    /* Gradientes oficiais de nível do TikTok */
+    .badge-level-bronze { background: linear-gradient(135deg, #78909c, #455a64); }
+    .badge-level-blue   { background: linear-gradient(135deg, #42a5f5, #1976d2); }
+    .badge-level-purple { background: linear-gradient(135deg, #ab47bc, #7b1fa2); }
+    .badge-level-orange { background: linear-gradient(135deg, #ffa726, #f57c00); }
+    .badge-level-pink   { background: linear-gradient(135deg, #ff4081, #d500f9); }
+
+    .badge-mod {
+      background: #00B4D8;
+      font-weight: 800;
+    }
+
+    .badge-sub {
+      background: #FE2C55;
+    }
+
+    /* Nome do Usuário no iPhone */
+    .tiktok-username {
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.72); /* Cor cinza-claro característica no iOS */
+      cursor: pointer;
+      display: inline;
+    }
+
+    .tiktok-username:hover {
+      text-decoration: underline;
+    }
+
+    /* Texto do Comentário */
+    .tiktok-text {
+      color: #ffffff;
+      font-weight: 400;
+      display: inline;
+    }
+
+    /* Entrada de Usuário na Live ("fulano entrou") */
+    .tiktok-msg.join-event {
+      background: rgba(0, 0, 0, 0.32);
+      padding: 3px 10px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      border-left: 2px solid #FFD600;
+    }
+
+    .join-highlight {
+      color: #FFD600;
+      font-weight: 600;
+    }
+
+    .join-text-muted {
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    /* Presente / Gift no TikTok com Combo Counter Bouncing */
+    .tiktok-msg.gift-event {
+      background: rgba(254, 44, 85, 0.28);
+      border: 1px solid rgba(254, 44, 85, 0.45);
+      border-radius: 16px;
+      align-items: center;
+      padding: 4px 10px;
+    }
+
+    .gift-title {
+      font-size: 12.5px;
+      color: #fff;
+    }
+
+    .gift-item-name {
+      color: #FFD600;
+      font-weight: 700;
+    }
+
+    .combo-count {
+      font-size: 17px;
+      font-weight: 900;
+      font-style: italic;
+      color: #FFD600;
+      text-shadow: 0 0 8px rgba(255, 214, 0, 0.6), 1px 1px 0px #b25000;
+      margin-left: 6px;
+      display: inline-block;
+      animation: comboBounce 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes comboBounce {
+      0% { transform: scale(0.6); }
+      60% { transform: scale(1.4); }
+      100% { transform: scale(1); }
+    }
+
+    /* Botão flutuante "Novas mensagens" quando pausado */
+    .unread-pill {
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(254, 44, 85, 0.95);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      animation: bounceSubtle 1.5s infinite ease-in-out;
+      z-index: 30;
+    }
+
+    @keyframes bounceSubtle {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-3px); }
+    }
+
+    /* ===== TikTok Floating Hearts Particles (Bottom Right) ===== */
+    .hearts-emitter-container {
+      position: absolute;
+      bottom: 72px;
+      right: 14px;
+      width: 70px;
+      height: 280px;
+      pointer-events: none;
+      z-index: 25;
+      overflow: visible;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: 0;
+      font-size: 24px;
+      animation: floatHeart 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    @keyframes floatHeart {
+      0% {
+        opacity: 0.9;
+        transform: translateY(0) scale(0.8) rotate(0deg);
+      }
+      25% {
+        opacity: 1;
+        transform: translateY(-60px) scale(1.15) rotate(var(--rot-1, 12deg));
+      }
+      50% {
+        transform: translateY(-130px) scale(1) rotate(var(--rot-2, -10deg));
+      }
+      75% {
+        opacity: 0.8;
+        transform: translateY(-200px) scale(0.9) rotate(var(--rot-3, 8deg));
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-280px) scale(0.7) rotate(var(--rot-4, -14deg));
+      }
+    }
+
+    /* ===== iPhone Bottom Navigation & Input Bar ===== */
+    .iphone-bottom-bar {
+      pointer-events: auto;
+      padding: 8px 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 30;
+      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+    }
+
+    .comment-input-pill {
+      flex: 1;
+      height: 38px;
+      background: rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 20px;
+      border: 0.5px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .comment-input-pill:hover {
+      background: rgba(0, 0, 0, 0.55);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .action-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(14px);
+      border: 0.5px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease;
+      position: relative;
+    }
+
+    .action-icon-btn:hover {
+      transform: scale(1.08);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .action-icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .btn-like {
+      background: linear-gradient(135deg, rgba(254, 44, 85, 0.3), rgba(0,0,0,0.4));
+      border-color: rgba(254, 44, 85, 0.4);
+    }
+
+    /* iOS Home Indicator Bar */
+    .home-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 134px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
+      z-index: 85;
+      pointer-events: none;
+    }
+
+    /* ===== Control Dashboard (Right Column) ===== */
+    .dashboard-panel {
+      flex: 1;
+      min-width: 340px;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: rgba(18, 20, 29, 0.9);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .control-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      flex: 1;
+      min-width: 120px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateY(-1px);
+    }
+
+    .btn-action:active {
+      transform: translateY(1px);
+    }
+
+    .btn-action.primary {
+      background: var(--tiktok-pink);
+      border-color: var(--tiktok-pink);
+    }
+
+    .btn-action.gold {
+      background: linear-gradient(135deg, #FFB300, #F57C00);
+      border: none;
+      color: #000;
+      font-weight: 700;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .text-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--tiktok-pink);
+      box-shadow: 0 0 10px rgba(254, 44, 85, 0.3);
+    }
+
+    .select-input {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Gift Drawer Modal */
+    .gift-drawer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(20, 22, 30, 0.95);
+      backdrop-filter: blur(20px);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 18px 16px 28px;
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .gift-drawer.open {
+      transform: translateY(0);
+    }
+
+    .drawer-handle {
+      width: 36px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      margin: 0 auto 12px;
+    }
+
+    .gift-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .gift-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 10px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .gift-card:hover {
+      background: rgba(254, 44, 85, 0.15);
+      border-color: var(--tiktok-pink);
+      transform: translateY(-2px);
+    }
+
+    .gift-card-icon {
+      font-size: 26px;
+    }
+
+    .gift-card-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .gift-card-coins {
+      font-size: 10px;
+      color: #FFD600;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    /* Code Modal */
+    .code-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .code-modal-overlay.open {
+      display: flex;
+    }
+
+    .code-modal {
+      background: #12141c;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 760px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .code-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .code-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0d0f17;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      border-bottom-color: var(--tiktok-pink);
+    }
+
+    .code-content {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+      background: #090a0f;
+    }
+
+    pre {
+      font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    /* Key specs pills */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .spec-item {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border-left: 3px solid var(--tiktok-pink);
+    }
+
+    .spec-label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .spec-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand">
+      <div class="brand-badge">iOS STYLE</div>
+      <h1>TikTok Live Chat iPhone Simulator</h1>
+    </div>
+
+    <div class="header-actions">
+      <button class="pill-btn active" id="btnModePhone" onclick="setMode('phone')">
+        📱 iPhone Frame
+      </button>
+      <button class="pill-btn" id="btnModeOverlay" onclick="setMode('overlay')">
+        🎬 Overlay Streamlabs
+      </button>
+      <button class="pill-btn pill-btn-pink" onclick="openCodeModal()">
+        💻 Código & Integração
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="workspace">
+
+    <!-- iPhone 16 Pro Device Mockup -->
+    <div class="phone-wrapper" id="phoneDevice">
+
+      <!-- Dynamic Island (iOS) -->
+      <div class="dynamic-island">
+        <div class="island-sensor"></div>
+        <div class="island-camera"></div>
+      </div>
+
+      <!-- iOS Status Bar -->
+      <div class="ios-status-bar">
+        <span id="iosClock">9:41</span>
+        <div class="status-icons">
+          <!-- 5G icon -->
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none">
+            <path d="M1 8.5C1 7.12 2.12 6 3.5 6C4.88 6 6 7.12 6 8.5C6 9.88 4.88 11 3.5 11C2.12 11 1 9.88 1 8.5Z" stroke="white" stroke-width="1.2"/>
+            <path d="M10 6H13.5V8.5H11.5V11H10V6Z" fill="white"/>
+            <path d="M15 6V11H16.5V8.5H17.5V7H16.5V6H15Z" fill="white"/>
+          </svg>
+          <!-- Wifi -->
+          <svg width="15" height="12" viewBox="0 0 15 12" fill="white">
+            <path d="M7.5 10.5C8.05 10.5 8.5 10.05 8.5 9.5C8.5 8.95 8.05 8.5 7.5 8.5C6.95 8.5 6.5 8.95 6.5 9.5C6.5 10.05 6.95 10.5 7.5 10.5Z"/>
+            <path d="M11 7C10.07 6.07 8.84 5.55 7.5 5.55C6.16 5.55 4.93 6.07 4 7L4.7 7.71C5.45 6.96 6.44 6.55 7.5 6.55C8.56 6.55 9.55 6.96 10.3 7.71L11 7Z"/>
+            <path d="M13.5 4.5C11.9 2.9 9.77 2 7.5 2C5.23 2 3.1 2.9 1.5 4.5L2.21 5.21C3.62 3.8 5.5 3 7.5 3C9.5 3 11.38 3.8 12.79 5.21L13.5 4.5Z"/>
+          </svg>
+          <!-- Battery 90% -->
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none">
+            <rect x="1" y="1" width="20" height="10" rx="3" stroke="white" stroke-width="1.2"/>
+            <rect x="2.5" y="2.5" width="14" height="7" rx="1.5" fill="white"/>
+            <path d="M22 4.5V7.5" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Live Screen Content -->
+      <div class="screen-content">
+        <!-- Animated Canvas Live Background (Gaming / IRL Simulation) -->
+        <canvas id="streamCanvas"></canvas>
+        <video id="webcamVideo" class="video-webcam" autoplay playsinline muted></video>
+
+        <!-- Tap-to-like invisible trigger area -->
+        <div class="tap-target-area" id="tapArea" title="Toque na tela para curtir (corações do TikTok)"></div>
+
+        <!-- Floating TikTok Hearts Emitter -->
+        <div class="hearts-emitter-container" id="heartsContainer"></div>
+
+        <!-- Overlay UI elements -->
+        <div class="live-ui-overlay">
+
+          <!-- Top Streamer Header -->
+          <div class="streamer-header">
+            <div class="streamer-pill">
+              <div class="streamer-avatar">★</div>
+              <div class="streamer-info">
+                <span class="streamer-name">pedro.live <span style="color:#00B4D8; font-size:10px;">✔</span></span>
+                <span class="streamer-likes" id="liveLikesLabel">❤️ 128.4K curtidas</span>
+              </div>
+              <button class="btn-follow-streamer">+ Seguir</button>
+            </div>
+
+            <div class="stream-stats">
+              <div class="viewers-pill">
+                <span>👁</span> <span id="viewerCount">3.2k</span>
+              </div>
+              <button class="close-live-btn" title="Fechar">✕</button>
+            </div>
+          </div>
+
+          <!-- Bottom Area: Chat + Controls -->
+          <div style="display:flex; flex-direction:column;">
+
+            <!-- TikTok Live Chat Widget -->
+            <div class="tiktok-chat-container">
+
+              <!-- Pinned streamer message -->
+              <div class="pinned-banner" id="pinnedBanner">
+                <span class="pinned-icon">📌</span>
+                <div>
+                  <span class="pinned-title">Fixado:</span>
+                  <span>Bem-vindos à live! Respeite as regras e aproveite a transmissão! 🚀</span>
+                </div>
+              </div>
+
+              <!-- Chat List with iOS Mask -->
+              <div class="chat-scroll-viewport" id="chatViewport">
+                <!-- Messages will be dynamically rendered here -->
+              </div>
+
+              <!-- Unread / New Messages Pill -->
+              <div class="unread-pill" id="unreadPill" style="display:none;" onclick="scrollToBottom(true)">
+                <span>↓ Novas mensagens</span>
+              </div>
+            </div>
+
+            <!-- Bottom Interaction Bar -->
+            <div class="iphone-bottom-bar">
+              <div class="comment-input-pill" onclick="focusQuickInput()">
+                <span>Diga algo legal...</span>
+              </div>
+
+              <button class="action-icon-btn" onclick="toggleGiftDrawer()" title="Enviar Presente">
+                <span style="font-size:18px;">🎁</span>
+              </button>
+
+              <button class="action-icon-btn" title="Compartilhar" onclick="simulateShare()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+              </button>
+
+              <button class="action-icon-btn btn-like" id="btnLikeHeart" onclick="triggerHearts(event)" title="Curtir">
+                <span style="font-size:18px;">❤️</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Gift Selection Drawer -->
+        <div class="gift-drawer" id="giftDrawer">
+          <div class="drawer-handle" onclick="toggleGiftDrawer()"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-size:13px; font-weight:700;">Presentes TikTok</span>
+            <span style="font-size:12px; color:#FFD600; font-weight:700;">🪙 1.450 Moedas</span>
+          </div>
+
+          <div class="gift-grid">
+            <div class="gift-card" onclick="sendSimulatedGift('Rosa', '🌹', 1)">
+              <span class="gift-card-icon">🌹</span>
+              <span class="gift-card-name">Rosa</span>
+              <span class="gift-card-coins">🪙 1</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Coração', '💖', 5)">
+              <span class="gift-card-icon">💖</span>
+              <span class="gift-card-name">Coração</span>
+              <span class="gift-card-coins">🪙 5</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Café', '☕', 10)">
+              <span class="gift-card-icon">☕</span>
+              <span class="gift-card-name">Café</span>
+              <span class="gift-card-coins">🪙 10</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Donut', '🍩', 30)">
+              <span class="gift-card-icon">🍩</span>
+              <span class="gift-card-name">Donut</span>
+              <span class="gift-card-coins">🪙 30</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Boné TikTok', '🧢', 99)">
+              <span class="gift-card-icon">🧢</span>
+              <span class="gift-card-name">Boné</span>
+              <span class="gift-card-coins">🪙 99</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Galáxia', '🌌', 500)">
+              <span class="gift-card-icon">🌌</span>
+              <span class="gift-card-name">Galáxia</span>
+              <span class="gift-card-coins">🪙 500</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Leão Real', '🦁', 1000)">
+              <span class="gift-card-icon">🦁</span>
+              <span class="gift-card-name">Leão</span>
+              <span class="gift-card-coins">🪙 1000</span>
+            </div>
+            <div class="gift-card" onclick="sendSimulatedGift('Universo', '🪐', 2999)">
+              <span class="gift-card-icon">🪐</span>
+              <span class="gift-card-name">Universo</span>
+              <span class="gift-card-coins">🪙 2999</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- iOS Home Bar -->
+      <div class="home-bar"></div>
+    </div>
+
+    <!-- Control Center Dashboard -->
+    <div class="dashboard-panel">
+
+      <!-- Test & Send Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>⚡ Enviar Mensagem no Chat</span>
+          <span style="font-size:11px; color:#FE2C55; font-weight:700;">TESTE AO VIVO</span>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="customUser" class="text-input" placeholder="Seu Nickname" value="pedro_dev" style="max-width:140px;">
+          <select id="customLevel" class="select-input">
+            <option value="1">Nível 1 (Cinza)</option>
+            <option value="15" selected>Nível 15 (Azul)</option>
+            <option value="25">Nível 25 (Roxo)</option>
+            <option value="35">Nível 35 (Ouro)</option>
+            <option value="45">Nível 45 (Diamante/Rosa)</option>
+          </select>
+          <label style="display:flex; align-items:center; gap:4px; font-size:12px; cursor:pointer;">
+            <input type="checkbox" id="checkMod"> Mod
+          </label>
+        </div>
+
+        <div class="input-group">
+          <input type="text" id="customMessage" class="text-input" placeholder="Digite uma mensagem para o chat..." value="Ficou idêntico ao iPhone! Sensacional 🔥">
+          <button class="btn-action primary" onclick="sendCustomComment()" style="flex:0; min-width:90px;">
+            Enviar
+          </button>
+        </div>
+
+        <div class="control-row">
+          <button class="btn-action" onclick="sendSimulatedGift('Rosa', '🌹', 1)">
+            🌹 Enviar Rosa (+Combo)
+          </button>
+          <button class="btn-action gold" onclick="sendSimulatedGift('Galáxia', '🌌', 500)">
+            🌌 Enviar Galáxia
+          </button>
+          <button class="btn-action" onclick="simulateUserJoin()">
+            ✨ Simular Entrada
+          </button>
+        </div>
+      </div>
+
+      <!-- Simulator Controls Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎮 Controles da Transmissão</span>
+        </div>
+
+        <div class="control-row">
+          <button class="btn-action" id="btnToggleSim" onclick="toggleAutoChat()">
+            ⏸ Pausar Chat Automático
+          </button>
+          <button class="btn-action" onclick="clearChat()">
+            🗑 Limpar Chat
+          </button>
+        </div>
+
+        <div class="control-row">
+          <button class="btn-action" onclick="toggleWebcam()">
+            📷 Usar Minha Câmera
+          </button>
+          <button class="btn-action" onclick="switchLiveScene()">
+            🎨 Mudar Tema de Fundo
+          </button>
+        </div>
+
+        <!-- Specifications Breakdown -->
+        <div class="specs-grid">
+          <div class="spec-item">
+            <div class="spec-label">Fundo da Cápsula</div>
+            <div class="spec-val">rgba(0, 0, 0, 0.38) + Blur</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Raio da Borda</div>
+            <div class="spec-val">15px (Pílula iOS)</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Cor do Nickname</div>
+            <div class="spec-val">rgba(255, 255, 255, 0.72)</div>
+          </div>
+          <div class="spec-item">
+            <div class="spec-label">Efeito Fade Topo</div>
+            <div class="spec-val">Mask Linear Gradient</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integration Notice -->
+      <div class="card" style="border-color: rgba(254, 44, 85, 0.3);">
+        <div class="card-title" style="color:var(--tiktok-pink);">
+          <span>📱 Pronto para o seu App Mobile</span>
+        </div>
+        <p style="font-size:13px; color:rgba(255,255,255,0.8); line-height:1.5;">
+          Os arquivos prontos para <strong>React Native</strong> (<span style="color:#00B4D8;">components/TikTokLiveChat.tsx</span>), <strong>Flutter</strong> (<span style="color:#00B4D8;">tiktok_live_chat.dart</span>) e <strong>SwiftUI iOS</strong> (<span style="color:#00B4D8;">TikTokLiveChatView.swift</span>) já foram gerados na raiz do seu projeto!
+        </p>
+        <button class="btn-action primary" onclick="openCodeModal()" style="margin-top:12px;">
+          Ver e Copiar Código dos Componentes
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Code & Integration Modal -->
+  <div class="code-modal-overlay" id="codeModal" onclick="closeCodeModal(event)">
+    <div class="code-modal" onclick="event.stopPropagation()">
+      <div class="code-modal-header">
+        <h3 style="font-size:16px;">Código & Implementação do Chat TikTok</h3>
+        <button class="close-live-btn" onclick="closeCodeModal()">✕</button>
+      </div>
+
+      <div class="code-tabs">
+        <button class="tab-btn active" onclick="switchCodeTab('rn')">React Native (Expo / Bare)</button>
+        <button class="tab-btn" onclick="switchCodeTab('flutter')">Flutter (Dart)</button>
+        <button class="tab-btn" onclick="switchCodeTab('swift')">SwiftUI (iOS Nativo)</button>
+        <button class="tab-btn" onclick="switchCodeTab('css')">HTML / CSS / OBS</button>
+      </div>
+
+      <div class="code-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+          <span id="tabFilename" style="color:#FE2C55; font-size:12px; font-weight:700;">components/TikTokLiveChat.tsx</span>
+          <button class="pill-btn" onclick="copyCurrentCode()">📋 Copiar Código</button>
+        </div>
+        <pre><code id="codeSnippet">Carregando código...</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== LIVE SIMULATOR LOGIC & TIKTOK REPLICA ENGINE =====
+
+    // Sound effects using Web Audio API
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new AudioContext();
+    }
+
+    function playPopSound() {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(750, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+      } catch (e) {}
+    }
+
+    function playGiftSound() {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+      } catch (e) {}
+    }
+
+    // iPhone Clock Update
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('iosClock').textContent = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Canvas Background Live Simulation
+    const canvas = document.getElementById('streamCanvas');
+    const ctx = canvas.getContext('2d');
+    let sceneIndex = 0;
+    let frame = 0;
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth || 380;
+      canvas.height = canvas.parentElement.clientHeight || 780;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawLiveBackground() {
+      frame++;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      if (sceneIndex === 0) {
+        // Gaming Scene (Neon Cyberpunk Horizon)
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#0f172a');
+        grad.addColorStop(0.5, '#1e1b4b');
+        grad.addColorStop(1, '#020617');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Animated synthwave grid
+        ctx.strokeStyle = 'rgba(254, 44, 85, 0.25)';
+        ctx.lineWidth = 1;
+        const horizon = h * 0.6;
+        for (let x = 0; x < w; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, horizon);
+          ctx.lineTo((x - w / 2) * 3 + w / 2, h);
+          ctx.stroke();
+        }
+        for (let y = 0; y < 10; y++) {
+          const yPos = horizon + Math.pow(y / 10, 2) * (h - horizon);
+          ctx.beginPath();
+          ctx.moveTo(0, yPos);
+          ctx.lineTo(w, yPos);
+          ctx.stroke();
+        }
+
+        // Glowing sun
+        const sunGrad = ctx.createRadialGradient(w / 2, horizon - 40, 10, w / 2, horizon - 40, 90);
+        sunGrad.addColorStop(0, '#ffd600');
+        sunGrad.addColorStop(0.4, '#fe2c55');
+        sunGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(w / 2, horizon - 40, 90, 0, Math.PI * 2);
+        ctx.fill();
+
+      } else if (sceneIndex === 1) {
+        // IRL Streamer Studio Lighting (Warm Ambient Bokeh)
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, '#1a102f');
+        grad.addColorStop(0.5, '#2d1b4e');
+        grad.addColorStop(1, '#0f051d');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Bokeh spheres
+        for (let i = 0; i < 6; i++) {
+          const bx = (Math.sin(frame * 0.01 + i) * 0.4 + 0.5) * w;
+          const by = (Math.cos(frame * 0.008 + i * 1.5) * 0.3 + 0.4) * h;
+          const bGrad = ctx.createRadialGradient(bx, by, 5, bx, by, 80 + i * 15);
+          bGrad.addColorStop(0, i % 2 === 0 ? 'rgba(254,44,85,0.25)' : 'rgba(37,244,238,0.2)');
+          bGrad.addColorStop(1, 'transparent');
+          ctx.fillStyle = bGrad;
+          ctx.beginPath();
+          ctx.arc(bx, by, 80 + i * 15, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        // Transparent Grid (for testing overlay transparency)
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#0a0d14';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(255,255,255,0.03)';
+        const size = 20;
+        for (let x = 0; x < w; x += size * 2) {
+          for (let y = 0; y < h; y += size * 2) {
+            ctx.fillRect(x, y, size, size);
+            ctx.fillRect(x + size, y + size, size, size);
+          }
+        }
+      }
+
+      requestAnimationFrame(drawLiveBackground);
+    }
+    requestAnimationFrame(drawLiveBackground);
+
+    function switchLiveScene() {
+      sceneIndex = (sceneIndex + 1) % 3;
+    }
+
+    // Toggle Webcam
+    let webcamActive = false;
+    async function toggleWebcam() {
+      const video = document.getElementById('webcamVideo');
+      if (webcamActive) {
+        if (video.srcObject) {
+          video.srcObject.getTracks().forEach(t => t.stop());
+        }
+        video.style.display = 'none';
+        webcamActive = false;
+      } else {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          video.srcObject = stream;
+          video.style.display = 'block';
+          webcamActive = true;
+        } catch (err) {
+          alert('Não foi possível acessar a câmera (verifique permissões do navegador).');
+        }
+      }
+    }
+
+    // ===== CHAT DATA & RENDERING =====
+    const chatViewport = document.getElementById('chatViewport');
+    const unreadPill = document.getElementById('unreadPill');
+    let isUserScrolledUp = false;
+    let unreadCount = 0;
+
+    chatViewport.addEventListener('scroll', () => {
+      const scrollPos = chatViewport.scrollTop + chatViewport.clientHeight;
+      const isBottom = scrollPos >= chatViewport.scrollHeight - 35;
+      isUserScrolledUp = !isBottom;
+      if (isBottom) {
+        unreadCount = 0;
+        unreadPill.style.display = 'none';
+      }
+    });
+
+    function scrollToBottom(force = false) {
+      if (force || !isUserScrolledUp) {
+        chatViewport.scrollTop = chatViewport.scrollHeight;
+        unreadCount = 0;
+        unreadPill.style.display = 'none';
+      } else {
+        unreadCount++;
+        unreadPill.textContent = `↓ Novas mensagens (${unreadCount})`;
+        unreadPill.style.display = 'flex';
+      }
+    }
+
+    // Level Badge Class Helper
+    function getLevelClass(lvl) {
+      if (lvl >= 40) return 'badge-level-pink';
+      if (lvl >= 30) return 'badge-level-orange';
+      if (lvl >= 20) return 'badge-level-purple';
+      if (lvl >= 10) return 'badge-level-blue';
+      return 'badge-level-bronze';
+    }
+
+    // Add Comment to Viewport
+    function appendComment({ username, message, level = 1, isMod = false, isSub = false, avatar = null }) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'tiktok-msg';
+
+      let badgesHtml = '';
+      if (isMod) {
+        badgesHtml += `<span class="tiktok-badge badge-mod">MOD</span>`;
+      }
+      if (isSub) {
+        badgesHtml += `<span class="tiktok-badge badge-sub">♥ SUB</span>`;
+      }
+      if (level) {
+        badgesHtml += `<span class="tiktok-badge ${getLevelClass(level)}">★ ${level}</span>`;
+      }
+
+      const avatarHtml = avatar 
+        ? `<img class="tiktok-avatar" src="${avatar}" alt="${username}">`
+        : `<div class="tiktok-avatar avatar-fallback">${username.charAt(0).toUpperCase()}</div>`;
+
+      msgDiv.innerHTML = `
+        ${avatarHtml}
+        <div>
+          ${badgesHtml}
+          <span class="tiktok-username">${username}:</span>
+          <span class="tiktok-text">${escapeHtml(message)}</span>
+        </div>
+      `;
+
+      chatViewport.appendChild(msgDiv);
+      trimChatHistory();
+      scrollToBottom();
+      playPopSound();
+    }
+
+    // Add Join Event
+    function appendJoinEvent(username) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'tiktok-msg join-event';
+      msgDiv.innerHTML = `
+        <span>✨</span>
+        <span class="join-highlight">${escapeHtml(username)}</span>
+        <span class="join-text-muted">entrou na LIVE</span>
+      `;
+      chatViewport.appendChild(msgDiv);
+      trimChatHistory();
+      scrollToBottom();
+    }
+
+    // Gift Combos Tracker
+    let activeCombo = {
+      username: '',
+      gift: '',
+      count: 0,
+      element: null,
+      timeout: null
+    };
+
+    function appendGiftEvent(username, giftName, giftIcon) {
+      playGiftSound();
+
+      if (activeCombo.username === username && activeCombo.gift === giftName && activeCombo.element) {
+        // Increment combo
+        activeCombo.count++;
+        const comboElem = activeCombo.element.querySelector('.combo-count');
+        if (comboElem) {
+          comboElem.textContent = `x${activeCombo.count}`;
+          comboElem.style.animation = 'none';
+          comboElem.offsetHeight; // trigger reflow
+          comboElem.style.animation = 'comboBounce 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        }
+        clearTimeout(activeCombo.timeout);
+        activeCombo.timeout = setTimeout(() => {
+          activeCombo.element = null;
+        }, 3500);
+        return;
+      }
+
+      // New gift
+      activeCombo.username = username;
+      activeCombo.gift = giftName;
+      activeCombo.count = 1;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'tiktok-msg gift-event';
+      msgDiv.innerHTML = `
+        <div class="tiktok-avatar avatar-fallback" style="background:#FE2C55;">${username.charAt(0).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div class="tiktok-username">${escapeHtml(username)}</div>
+          <div class="gift-title">Enviou <span class="gift-item-name">${escapeHtml(giftName)}</span> ${giftIcon}</div>
+        </div>
+        <div class="combo-count">x1</div>
+      `;
+
+      chatViewport.appendChild(msgDiv);
+      activeCombo.element = msgDiv;
+      activeCombo.timeout = setTimeout(() => {
+        activeCombo.element = null;
+      }, 3500);
+
+      trimChatHistory();
+      scrollToBottom();
+    }
+
+    function trimChatHistory() {
+      // Keep DOM lightweight like TikTok does on iOS
+      while (chatViewport.children.length > 50) {
+        chatViewport.removeChild(chatViewport.firstChild);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ===== FLOATING TIKTOK HEARTS SYSTEM =====
+    const heartsContainer = document.getElementById('heartsContainer');
+    const heartColors = ['#FE2C55', '#25F4EE', '#FFD600', '#FF1744', '#E040FB', '#00E676'];
+    let likeCount = 128400;
+
+    function triggerHearts(e) {
+      if (e) e.stopPropagation();
+      playPopSound();
+      likeCount += Math.floor(Math.random() * 3) + 1;
+      document.getElementById('liveLikesLabel').textContent = `❤️ ${(likeCount / 1000).toFixed(1)}K curtidas`;
+
+      for (let i = 0; i < 2; i++) {
+        setTimeout(() => spawnSingleHeart(), i * 80);
+      }
+    }
+
+    function spawnSingleHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+      heart.style.color = color;
+      heart.innerHTML = '❤️';
+
+      // Random starting offset in px
+      const xOffset = (Math.random() - 0.5) * 45;
+      heart.style.left = `${30 + xOffset}px`;
+
+      // Set random wobble rotations
+      heart.style.setProperty('--rot-1', `${(Math.random() - 0.5) * 30}deg`);
+      heart.style.setProperty('--rot-2', `${(Math.random() - 0.5) * 35}deg`);
+      heart.style.setProperty('--rot-3', `${(Math.random() - 0.5) * 25}deg`);
+      heart.style.setProperty('--rot-4', `${(Math.random() - 0.5) * 40}deg`);
+
+      heartsContainer.appendChild(heart);
+
+      setTimeout(() => {
+        if (heart.parentNode) heart.parentNode.removeChild(heart);
+      }, 2300);
+    }
+
+    // Click on screen triggers hearts
+    document.getElementById('tapArea').addEventListener('click', (e) => {
+      triggerHearts(e);
+    });
+
+    // ===== SIMULATED CHAT AUTO-PILOT =====
+    const sampleUsers = [
+      { name: 'ana_gamer', lvl: 12, mod: false, sub: true },
+      { name: 'lucas_stream', lvl: 34, mod: true, sub: true },
+      { name: 'marcos_01', lvl: 5, mod: false, sub: false },
+      { name: 'julia_vlogs', lvl: 22, mod: false, sub: true },
+      { name: 'rodrigo_pro', lvl: 44, mod: false, sub: false },
+      { name: 'clara_live', lvl: 18, mod: false, sub: true },
+      { name: 'gabriel.tech', lvl: 8, mod: false, sub: false }
+    ];
+
+    const sampleComments = [
+      'A qualidade dessa live tá surreal! 👏',
+      'Salve mano! Manda um alô aqui pra SP 🇧🇷',
+      'Jogou muito na última partida 🔥🔥',
+      'Boa noite galera! Chegando agora',
+      'Como você configurou essa câmera? Tá top demais',
+      'Mandando aquela rosa pra ajudar no ranking 🌹',
+      'Essa UI ficou idêntica ao iPhone mano!',
+      'Gostei muito da fluidez do chat 🚀',
+      'Qual o próximo jogo da live?'
+    ];
+
+    let autoChatActive = true;
+    let autoChatTimer = null;
+
+    function scheduleNextSimulatedEvent() {
+      if (!autoChatActive) return;
+      const delay = Math.floor(Math.random() * 2000) + 1200;
+      autoChatTimer = setTimeout(() => {
+        if (!autoChatActive) return;
+
+        const rand = Math.random();
+        if (rand < 0.65) {
+          // Regular comment
+          const user = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+          const comment = sampleComments[Math.floor(Math.random() * sampleComments.length)];
+          appendComment({
+            username: user.name,
+            message: comment,
+            level: user.lvl,
+            isMod: user.mod,
+            isSub: user.sub
+          });
+        } else if (rand < 0.85) {
+          // Join event
+          const user = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+          appendJoinEvent(user.name);
+        } else {
+          // Gift event
+          const user = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+          appendGiftEvent(user.name, 'Rosa', '🌹');
+        }
+
+        scheduleNextSimulatedEvent();
+      }, delay);
+    }
+
+    function toggleAutoChat() {
+      autoChatActive = !autoChatActive;
+      const btn = document.getElementById('btnToggleSim');
+      if (autoChatActive) {
+        btn.textContent = '⏸ Pausar Chat Automático';
+        scheduleNextSimulatedEvent();
+      } else {
+        btn.textContent = '▶ Iniciar Chat Automático';
+        clearTimeout(autoChatTimer);
+      }
+    }
+
+    function clearChat() {
+      chatViewport.innerHTML = '';
+      activeCombo.element = null;
+    }
+
+    // User Interactive Actions from Dashboard
+    function sendCustomComment() {
+      const user = document.getElementById('customUser').value.trim() || 'usuario';
+      const msg = document.getElementById('customMessage').value.trim();
+      const level = parseInt(document.getElementById('customLevel').value) || 1;
+      const isMod = document.getElementById('checkMod').checked;
+
+      if (!msg) return;
+
+      appendComment({
+        username: user,
+        message: msg,
+        level: level,
+        isMod: isMod,
+        isSub: true
+      });
+
+      document.getElementById('customMessage').value = '';
+    }
+
+    document.getElementById('customMessage').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendCustomComment();
+    });
+
+    function sendSimulatedGift(name, icon, coins) {
+      const user = document.getElementById('customUser').value.trim() || 'meu_perfil';
+      appendGiftEvent(user, name, icon);
+      triggerHearts();
+      toggleGiftDrawer(false);
+    }
+
+    function simulateUserJoin() {
+      const user = document.getElementById('customUser').value.trim() || 'novo_espectador';
+      appendJoinEvent(user);
+    }
+
+    function toggleGiftDrawer(open) {
+      const drawer = document.getElementById('giftDrawer');
+      if (open === undefined) {
+        drawer.classList.toggle('open');
+      } else if (open) {
+        drawer.classList.add('open');
+      } else {
+        drawer.classList.remove('open');
+      }
+    }
+
+    function focusQuickInput() {
+      document.getElementById('customMessage').focus();
+    }
+
+    function simulateShare() {
+      alert('Link da live copiado para a área de transferência! (Simulação TikTok)');
+    }
+
+    // Set Display Mode (iPhone vs Overlay Streamlabs)
+    function setMode(mode) {
+      const phone = document.getElementById('phoneDevice');
+      const btnPhone = document.getElementById('btnModePhone');
+      const btnOverlay = document.getElementById('btnModeOverlay');
+
+      if (mode === 'overlay') {
+        phone.classList.add('mode-overlay');
+        btnOverlay.classList.add('active');
+        btnPhone.classList.remove('active');
+      } else {
+        phone.classList.remove('mode-overlay');
+        btnPhone.classList.add('active');
+        btnOverlay.classList.remove('active');
+      }
+    }
+
+    // ===== CODE MODAL & EXPORT LOGIC =====
+    let currentTab = 'rn';
+    const codeSnippets = {
+      rn: `// components/TikTokLiveChat.tsx (React Native / Expo)
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Platform } from 'react-native';
+
+export const TikTokLiveChat = ({ messages }) => {
+  const listRef = useRef(null);
+
+  useEffect(() => {
+    listRef.current?.scrollToEnd({ animated: true });
+  }, [messages]);
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        ref={listRef}
+        data={messages}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        renderItem={({ item }) => (
+          <View style={styles.messageRow}>
+            <View style={styles.bubble}>
+              {/* Badge de Nível */}
+              {item.level && (
+                <View style={[styles.badge, { backgroundColor: item.level >= 30 ? '#FF9800' : '#2196F3' }]}>
+                  <Text style={styles.badgeText}>★ {item.level}</Text>
+                </View>
+              )}
+              {/* Nome de Usuário (iOS SF Pro cinza claro) */}
+              <Text style={styles.username}>{item.username}: </Text>
+              {/* Texto do comentário */}
+              <Text style={styles.comment}>{item.text}</Text>
+            </View>
+          </View>
+        )}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    maxHeight: 260,
+    width: '85%',
+  },
+  messageRow: {
+    marginVertical: 3,
+    alignSelf: 'flex-start',
+  },
+  // A cápsula fosca translúcida clássica do TikTok iOS
+  bubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    backgroundColor: 'rgba(0, 0, 0, 0.38)',
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  badge: {
+    paddingHorizontal: 5,
+    height: 15,
+    borderRadius: 7.5,
+    justifyContent: 'center',
+    marginRight: 5,
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  username: {
+    fontSize: 13.5,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.72)',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'sans-serif-medium',
+  },
+  comment: {
+    fontSize: 13.5,
+    fontWeight: '400',
+    color: '#FFFFFF',
+    fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'sans-serif',
+  },
+});`,
+
+      flutter: `// components/tiktok_live_chat.dart (Flutter / Dart)
+import 'dart:ui';
+import 'package:flutter/material.dart';
+
+class TikTokLiveChatWidget extends StatelessWidget {
+  final List<dynamic> messages;
+  const TikTokLiveChatWidget({Key? key, required this.messages}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 280, maxWidth: 320),
+      // Fade no topo típico do TikTok iOS
+      child: ShaderMask(
+        shaderCallback: (Rect bounds) {
+          return const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black, Colors.black],
+            stops: [0.0, 0.15, 1.0],
+          ).createShader(bounds);
+        },
+        blendMode: BlendMode.dstIn,
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          itemCount: messages.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 5),
+          itemBuilder: (context, index) {
+            final msg = messages[index];
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.38),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: RichText(
+                      text: TextSpan(
+                        style: const TextStyle(fontFamily: '.SF Pro Text', fontSize: 13.5),
+                        children: [
+                          TextSpan(
+                            text: '\${msg.username}: ',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.72),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          TextSpan(
+                            text: msg.text,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}`,
+
+      swift: `// components/TikTokLiveChatView.swift (SwiftUI iOS)
+import SwiftUI
+
+public struct TikTokLiveChatView: View {
+    public var messages: [ChatMessage]
+
+    public var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(alignment: .leading, spacing: 5) {
+                    ForEach(messages) { msg in
+                        HStack(alignment: .top, spacing: 4) {
+                            Text(msg.username + ": ")
+                                .font(.system(size: 13.5, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.72))
+                            Text(msg.text)
+                                .font(.system(size: 13.5, weight: .regular))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                .fill(Color.black.opacity(0.38))
+                        )
+                        .id(msg.id)
+                    }
+                }
+                .padding(.horizontal, 12)
+            }
+        }
+        // Máscara com gradiente suave no topo do chat
+        .mask(
+            LinearGradient(
+                gradient: Gradient(stops: [
+                    .init(color: .clear, location: 0),
+                    .init(color: .black, location: 0.15),
+                    .init(color: .black, location: 1.0)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .frame(maxWidth: 320, maxHeight: 260)
+    }
+}`,
+
+      css: `/* Regras CSS Exatas do TikTok iPhone para Streamlabs / OBS / Web */
+.tiktok-chat-container {
+  max-width: 320px;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  
+  /* Máscara de fade-out no topo */
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to top, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+}
+
+.tiktok-msg {
+  align-self: flex-start;
+  background: rgba(0, 0, 0, 0.38); /* Tom fosco clássico do iPhone */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 15px;
+  padding: 4px 10px 5px 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 13.5px;
+  line-height: 1.35;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.tiktok-username {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.tiktok-text {
+  color: #FFFFFF;
+  font-weight: 400;
+}
+
+/* Badge de Nível */
+.tiktok-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 5px;
+  height: 15px;
+  border-radius: 7.5px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+}
+.badge-blue { background: linear-gradient(135deg, #42a5f5, #1976d2); }
+.badge-orange { background: linear-gradient(135deg, #ffa726, #f57c00); }`
+    };
+
+    function openCodeModal() {
+      document.getElementById('codeModal').classList.add('open');
+      switchCodeTab('rn');
+    }
+
+    function closeCodeModal(e) {
+      document.getElementById('codeModal').classList.remove('open');
+    }
+
+    function switchCodeTab(tab) {
+      currentTab = tab;
+      const tabs = document.querySelectorAll('.code-tabs .tab-btn');
+      tabs.forEach(t => t.classList.remove('active'));
+      const activeIdx = { rn: 0, flutter: 1, swift: 2, css: 3 }[tab];
+      if (tabs[activeIdx]) tabs[activeIdx].classList.add('active');
+
+      const filenames = {
+        rn: 'components/TikTokLiveChat.tsx',
+        flutter: 'components/tiktok_live_chat.dart',
+        swift: 'components/TikTokLiveChatView.swift',
+        css: 'components/tiktok-chat.css'
+      };
+      document.getElementById('tabFilename').textContent = filenames[tab];
+      document.getElementById('codeSnippet').textContent = codeSnippets[tab];
+    }
+
+    function copyCurrentCode() {
+      const code = codeSnippets[currentTab];
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Código copiado para a área de transferência!');
+      });
+    }
+
+    // Populate initial chat
+    window.addEventListener('DOMContentLoaded', () => {
+      appendJoinEvent('marcos_streamer');
+      appendComment({
+        username: 'carol_gamer',
+        message: 'Boa noite galera! Essa live hoje promete 🔥',
+        level: 15,
+        isSub: true
+      });
+      appendComment({
+        username: 'felipe_mod',
+        message: 'Lembrando de deixar o like na tela pessoal!',
+        level: 32,
+        isMod: true
+      });
+      appendGiftEvent('rodrigo_pro', 'Rosa', '🌹');
+      scheduleNextSimulatedEvent();
+    });
+  </script>
+</body>
+</html>
