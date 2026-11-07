@@ -1,0 +1,149 @@
+/* ==========================================================================
+   TikTok Live Chat - iOS (iPhone) Design Tokens & Stylesheet
+   Ideal para Streamlabs Mobile, OBS Studio, Browser Source e WebViews
+   ========================================================================== */
+
+:root {
+  --tiktok-bubble-bg: rgba(0, 0, 0, 0.38);
+  --tiktok-bubble-blur: 8px;
+  --tiktok-bubble-radius: 15px;
+  --tiktok-username-color: rgba(255, 255, 255, 0.72);
+  --tiktok-text-color: #ffffff;
+  --tiktok-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+  --tiktok-font-size: 13.5px;
+  --tiktok-line-height: 1.35;
+  --tiktok-pink: #FE2C55;
+  --tiktok-cyan: #25F4EE;
+  --tiktok-yellow: #FFD600;
+}
+
+/* Contêiner principal do Chat (Fundo transparente para Live Stream) */
+.tiktok-chat-container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Fade out superior característico do TikTok no iPhone */
+.tiktok-chat-scroll {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 10px;
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+  mask-image: linear-gradient(to top, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+  scroll-behavior: smooth;
+}
+
+/* Cápsula de mensagem translúcida fosca do TikTok */
+.tiktok-msg {
+  align-self: flex-start;
+  max-width: 100%;
+  background: var(--tiktok-bubble-bg);
+  backdrop-filter: blur(var(--tiktok-bubble-blur));
+  -webkit-backdrop-filter: blur(var(--tiktok-bubble-blur));
+  border-radius: var(--tiktok-bubble-radius);
+  padding: 4px 10px 5px 8px;
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: var(--tiktok-font-family);
+  font-size: var(--tiktok-font-size);
+  line-height: var(--tiktok-line-height);
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  border: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Avatar redondo do usuário */
+.tiktok-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 1px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Badges de Nível (Cores oficiais de progressão do TikTok) */
+.tiktok-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 15px;
+  padding: 0 5px;
+  border-radius: 7.5px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  vertical-align: middle;
+  margin-right: 4px;
+  text-transform: uppercase;
+  letter-spacing: -0.2px;
+}
+
+.badge-level-bronze { background: linear-gradient(135deg, #78909c, #455a64); }
+.badge-level-blue   { background: linear-gradient(135deg, #42a5f5, #1976d2); }
+.badge-level-purple { background: linear-gradient(135deg, #ab47bc, #7b1fa2); }
+.badge-level-orange { background: linear-gradient(135deg, #ffa726, #f57c00); }
+.badge-level-pink   { background: linear-gradient(135deg, #ff4081, #d500f9); }
+
+.badge-mod {
+  background: #00B4D8;
+}
+
+.badge-sub {
+  background: var(--tiktok-pink);
+}
+
+/* Nome de Usuário (Cinza suave com peso 600 do SF Pro) */
+.tiktok-username {
+  font-weight: 600;
+  color: var(--tiktok-username-color);
+}
+
+/* Texto do Comentário (Branco puro) */
+.tiktok-text {
+  color: var(--tiktok-text-color);
+  font-weight: 400;
+}
+
+/* Alerta de Entrada na Live ("entrou na LIVE") */
+.tiktok-msg.join-event {
+  background: rgba(0, 0, 0, 0.32);
+  padding: 3px 10px;
+  border-radius: 14px;
+  font-size: 12.5px;
+  border-left: 2px solid var(--tiktok-yellow);
+}
+
+.join-highlight {
+  color: var(--tiktok-yellow);
+  font-weight: 600;
+}
+
+/* Alerta de Presente com Contador de Combo Bouncing */
+.tiktok-msg.gift-event {
+  background: rgba(254, 44, 85, 0.28);
+  border: 1px solid rgba(254, 44, 85, 0.45);
+  border-radius: 16px;
+  align-items: center;
+  padding: 4px 10px;
+}
+
+.combo-count {
+  font-size: 17px;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--tiktok-yellow);
+  text-shadow: 0 0 8px rgba(255, 214, 0, 0.6), 1px 1px 0px #b25000;
+  margin-left: 6px;
+}
